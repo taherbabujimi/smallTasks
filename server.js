@@ -73,7 +73,7 @@ function processQ3() {
   }
 }
 
-setInterval(processQ1, 1000);
+processQ1;
 setInterval(processQ2, 3000);
 setInterval(processQ3, 3000);
 
@@ -92,5 +92,5 @@ app.post("/getString", async (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log("Server started on port", port);  
+  console.log("Server started on port", port);
 });
