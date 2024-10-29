@@ -31,7 +31,9 @@ let Q2 = [];
 let Q3 = [];
 
 function processQ1() {
-  if (Q1.length > 0) {
+  if (Q1.length === 0) return;
+
+  while (Q1.length > 0) {
     const current = Q1.shift();
     const uuid = Object.keys(current)[0];
 
@@ -52,7 +54,7 @@ function processQ1() {
 }
 
 function processQ2() {
-  if (Q2.length > 0) {
+  while (Q2.length > 0) {
     const current = Q2.shift();
     const uuid = Object.keys(current)[0];
 
@@ -64,7 +66,7 @@ function processQ2() {
 }
 
 function processQ3() {
-  if (Q3.length > 0) {
+  while (Q3.length > 0) {
     const current = Q3.shift();
     const uuid = Object.keys(current)[0];
 
@@ -73,7 +75,7 @@ function processQ3() {
   }
 }
 
-processQ1;
+setInterval(processQ1, 20000);
 setInterval(processQ2, 3000);
 setInterval(processQ3, 3000);
 
