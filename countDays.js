@@ -1,82 +1,94 @@
-function calculateDaysBetween(start, end, skipDates) {
-  const daysInMonth = [0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-  const leapDaysInMonth = [0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-  const daysInWeek = 7;
-  let skipWeekendPair = true;
+const startDateDay = 12;
+const startDateMonth = 2;
+const startDateYear = 2025;
+const startDateDayName = "Mon";
 
-  function isLeapYear(year) {
-    return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
-  }
+const finishDateDay = 22;
+const finishDateMonth = 8;
+const finishDateYear = 2037;
 
-  function incrementDate(day, month, year) {
-    const monthDays = isLeapYear(year) ? leapDaysInMonth : daysInMonth;
-    day += 1;
+let totalDays = 0;
+let daysInWeek = 7;
 
-    if (day > monthDays[month]) {
-      day = 1;
-      month += 1;
+const weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+let weekIndex = weekdays.indexOf(startDateDayName);
+
+let weekCounter = 0;
+
+let skipDates = ["22/8/2024", "5/4/2024", "16/8/2024"];
+
+if (startDateYear === finishDateYear && startDateMonth === finishDateMonth) {
+  totalDays = finishDateDay - startDateDay;
+} else {
+  for (let i = startDateYear; i <= finishDateYear; i++) {
+    let yearType;
+    if (i % 400 === 0) {
+      yearType = "leapYear";
+    } else if (i % 100 === 0) {
+      yearType = "normalYear";
+    } else if (i % 4 === 0) {
+      yearType = "leapYear";
+    } else {
+      yearType = "normalYear";
     }
-    if (month > 12) {
-      month = 1;
-      year += 1;
+
+    let startMonth = 1;
+    if (i === startDateYear) {
+      startMonth = startDateMonth;
     }
-    return { day, month, year };
-  }
 
-  function isDateInSkipDates(day, month, year) {
-    return skipDates.some(
-      (date) => date.day === day && date.month === month && date.year === year
-    );
-  }
+    let endMonth = 12;
+    if (i === finishDateYear) {
+      endMonth = finishDateMonth;
+    }
 
-  let daysCount = 0;
-  let { day, month, year } = start;
-  const endDate = `${end.day}-${end.month}-${end.year}`;
-  let weekDayCounter = start.weekDay;
-
-  console.log("Processing Dates:");
-  while (`${day}-${month}-${year}` !== endDate) {
-    const currentDate = `${day}-${month}-${year}`;
-
-    if (isDateInSkipDates(day, month, year)) {
-      console.log(`Skipping (specific date): ${currentDate}`);
-    } else if (weekDayCounter === 5) {
-      if (skipWeekendPair) {
-        console.log(`Skipping (weekend): ${currentDate}`);
-        ({ day, month, year } = incrementDate(day, month, year));
-        weekDayCounter = (weekDayCounter + 1) % daysInWeek;
-        console.log(`Skipping (weekend): ${day}-${month}-${year}`);
-      } else {
-        console.log(`Counting (alternate weekend Saturday): ${currentDate}`);
-        daysCount += 1;
-
-        ({ day, month, year } = incrementDate(day, month, year));
-        weekDayCounter = (weekDayCounter + 1) % daysInWeek;
-        const sundayDate = `${day}-${month}-${year}`;
-        console.log(`Counting (alternate weekend Sunday): ${sundayDate}`);
-        daysCount += 1;
+    for (let j = startMonth; j <= endMonth; j++) {
+      let remainingDays = 0;
+      let calculatedDays = 0;
+      let weekendsToSkip = 0;
+      let daysInMonth;
+      switch (j) {
+        case 4:
+        case 6:
+        case 9:
+        case 11:
+          daysInMonth = 30;
+          break;
+        case 2:
+          if (yearType === "leapYear") {
+            daysInMonth = 29;
+          } else {
+            daysInMonth = 28;
+          }
+          break;
+        default:
+          daysInMonth = 31;
+          break;
       }
-      skipWeekendPair = !skipWeekendPair;
-    } else if (weekDayCounter !== 6) {
-      daysCount += 1;
-      console.log(`Counting: ${currentDate}`);
+
+      let weeksInMonth = Math.round(daysInMonth / 7);
+      console.log(weeksInMonth);
+
+      for (let k = 1; k <= weeksInMonth; k++) {
+        if (weekCounter % 2 === 0) {
+          totalDays += 5;
+          calculatedDays += 5;
+          weekendsToSkip += 2;
+
+          console.log("Weekends to skip", weekendsToSkip);
+        } else {
+          totalDays += daysInWeek;
+          calculatedDays += daysInWeek;
+        }
+
+        weekCounter++;
+        console.log("Week Counter", weekCounter);
+      }
+      remainingDays = daysInMonth - calculatedDays - weekendsToSkip;
+      totalDays += remainingDays;
+      console.log("remaining days: ", remainingDays);
     }
-
-    ({ day, month, year } = incrementDate(day, month, year));
-    weekDayCounter = (weekDayCounter + 1) % daysInWeek;
   }
-
-  return daysCount;
 }
 
-const startDate = { day: 1, month: 1, year: 2024, weekDay: 0 };
-const endDate = { day: 31, month: 1, year: 2034 };
-const skipDates = [
-  { day: 15, month: 1, year: 2023 },
-  { day: 20, month: 1, year: 2023 },
-];
-
-console.log(
-  "Total Days Counted:",
-  calculateDaysBetween(startDate, endDate, skipDates)
-);
+console.log(`Total Days: ${totalDays - skipDates.length}`);
