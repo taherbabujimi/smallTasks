@@ -64,7 +64,7 @@ if (startDateYear === finishDateYear && startDateMonth === finishDateMonth) {
       }
 
       if (i === startDateYear && j === startDateMonth) {
-        daysInMonth = daysInMonth - (startDateDay - 1);
+        daysInMonth = daysInMonth - startDateDay;
       } else if (i === finishDateYear && j === finishDateMonth) {
         daysInMonth = finishDateDay;
       }
@@ -77,13 +77,13 @@ if (startDateYear === finishDateYear && startDateMonth === finishDateMonth) {
       console.log("Extra days: ", extraDays);
 
       for (let k = 0; k < fullWeeks; k++) {
-        // totalDays += daysInWeek;
-        if (weekCounter % 2 === 0) {
-          totalDays += 5;
-        } else {
-          totalDays += daysInWeek;
-        }
-        weekCounter++;
+        totalDays += daysInWeek;
+        // if (weekCounter % 2 === 0) {
+        //   totalDays += 5;
+        // } else {
+        //   totalDays += daysInWeek;
+        // }
+        // weekCounter++;
       }
 
       if (extraDays > 0) {
@@ -95,4 +95,4 @@ if (startDateYear === finishDateYear && startDateMonth === finishDateMonth) {
   }
 }
 
-console.log(`Total Days: ${totalDays - skipDates.length}`);
+console.log(`Total Days: ${totalDays}`);
