@@ -1,11 +1,11 @@
-const startDateDay = 12;
-const startDateMonth = 2;
-const startDateYear = 2025;
+const startDateDay = 1;
+const startDateMonth = 7;
+const startDateYear = 2020;
 const startDateDayName = "Mon";
 
 const finishDateDay = 22;
-const finishDateMonth = 8;
-const finishDateYear = 2037;
+const finishDateMonth = 9;
+const finishDateYear = 2023;
 
 let totalDays = 0;
 let daysInWeek = 7;
@@ -43,9 +43,6 @@ if (startDateYear === finishDateYear && startDateMonth === finishDateMonth) {
     }
 
     for (let j = startMonth; j <= endMonth; j++) {
-      let remainingDays = 0;
-      let calculatedDays = 0;
-      let weekendsToSkip = 0;
       let daysInMonth;
       switch (j) {
         case 4:
@@ -66,27 +63,34 @@ if (startDateYear === finishDateYear && startDateMonth === finishDateMonth) {
           break;
       }
 
-      let weeksInMonth = Math.round(daysInMonth / 7);
-      console.log(weeksInMonth);
+      if (i === startDateYear && j === startDateMonth) {
+        daysInMonth = daysInMonth - (startDateDay - 1);
+      } else if (i === finishDateYear && j === finishDateMonth) {
+        daysInMonth = finishDateDay;
+      }
 
-      for (let k = 1; k <= weeksInMonth; k++) {
+      console.log("days in month: ", daysInMonth);
+
+      let fullWeeks = Math.floor(daysInMonth / 7);
+      console.log("FullWeeks: ", fullWeeks);
+      let extraDays = daysInMonth % 7;
+      console.log("Extra days: ", extraDays);
+
+      for (let k = 0; k < fullWeeks; k++) {
+        // totalDays += daysInWeek;
         if (weekCounter % 2 === 0) {
           totalDays += 5;
-          calculatedDays += 5;
-          weekendsToSkip += 2;
-
-          console.log("Weekends to skip", weekendsToSkip);
         } else {
           totalDays += daysInWeek;
-          calculatedDays += daysInWeek;
         }
-
         weekCounter++;
-        console.log("Week Counter", weekCounter);
       }
-      remainingDays = daysInMonth - calculatedDays - weekendsToSkip;
-      totalDays += remainingDays;
-      console.log("remaining days: ", remainingDays);
+
+      if (extraDays > 0) {
+        totalDays += weekCounter % 2 === 0 ? Math.min(extraDays, 5) : extraDays;
+      }
+      console.log("min:", Math.min(extraDays, 5));
+      weekCounter++;
     }
   }
 }
