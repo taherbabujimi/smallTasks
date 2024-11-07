@@ -2,7 +2,7 @@ let data = [
   {
     id: 1,
     name: "de",
-    status: 0,
+    status: 1,
   },
   {
     id: 2,
@@ -18,88 +18,100 @@ let data = [
   },
   {
     id: 4,
-    name: "werf",
+    name: "werff",
     dependencies: [3],
     status: 1,
   },
 ];
 
-let dataName = "";
-let depStatus = false;
+function checkDependenciesAndStatus(id) {
+  let printed = false;
+  let initialIdName = null;
 
-function fetchData(id, visited = new Set()) {
-  let dataFound = false;
-  let status = false;
-  for (let i = 0; i < data.length; i++) {
-    if (data[i].id === id) {
-      if (data[i].status === 1 && data[i].dependencies === undefined) {
-        console.log(data[i].name);
-      } else if (data[i].status === 0 && data[i].dependencies === undefined) {
-        console.log("Data's Status is 0");
-      } else if (data[i].status === 1 && data[i].dependencies !== undefined) {
-        for (let j = 0; j < data.length; j++) {
-          if (visited.has(data[j].id) === false) {
-            if (data[i].dependencies.includes(data[j].id)) {
-              status = data[j].status === 1;
+  function fetchData(id, visited = new Set()) {
+    let dataFound = false;
+    let status = false;
+    for (let i = 0; i < data.length; i++) {
+      if (data[i].id === id) {
+        if (initialIdName === null) {
+          initialIdName = data[i].name;
+        }
+        if (data[i].status === 0) {
+          console.log(`${initialIdName}'s Status is 0`);
+        } else if (data[i].status === 1 && data[i].dependencies === undefined) {
+          console.log(`${initialIdName}'s Status is 1`);
+        } else if (data[i].status === 1 && data[i].dependencies !== undefined) {
+          for (let j = 0; j < data.length; j++) {
+            if (visited.has(data[j].id) === false) {
+              if (data[i].dependencies.includes(data[j].id)) {
+                status = data[j].status === 1;
 
-              if (!status) break;
+                if (!status) break;
 
-              fetchData(data[j].id);
-              visited.add(data[j].id);
+                fetchData(data[j].id, new Set(visited), data[i].name);
+                visited.add(data[j].id);
+              }
             }
+          }
+
+          if (printed === false && !status) {
+            console.log(
+              `One of the ${initialIdName}'s dependencies have status 0`
+            );
+            printed = true;
+          } else if (printed === false && status) {
+            console.log(`${initialIdName}'s all dependencies have status 1`);
+            printed = true;
           }
         }
 
-        if (status) {
-          console.log(data[i].name);
-        } else {
-          console.log(`${data[i].name}'s dependencies have status 0`);
-        }
+        dataFound = true;
+        break;
       }
-      dataFound = true;
-      break;
+    }
+
+    if (!dataFound) {
+      console.log("Data with this id does not exist.");
     }
   }
 
-  if (!dataFound) {
-    console.log("Data with this id does not exist.");
-  }
-}
+  let circularDependencyFound = false;
 
-let circularDependencyFound = false;
+  function checkCircularDependencies(id, visited = new Set(), id2 = null) {
+    let dataFound = false;
 
-function checkCircularDependencies(id, visited = new Set(), id2 = null) {
-  let dataFound = false;
+    for (let i = 0; i < data.length; i++) {
+      if (data[i].id === id) {
+        if (data[i].dependencies) {
+          if (visited.has(id)) {
+            console.log(`Circular dependency found between (${id2}, ${id})`);
+            circularDependencyFound = true;
+            return;
+          }
 
-  for (let i = 0; i < data.length; i++) {
-    if (data[i].id === id) {
-      if (data[i].dependencies) {
-        if (visited.has(id)) {
-          console.log(`Circular dependency found between (${id2}, ${id})`);
-          circularDependencyFound = true;
-          return;
+          visited.add(id);
+
+          for (let depId of data[i].dependencies) {
+            checkCircularDependencies(depId, new Set(visited), id);
+          }
         }
-
-        visited.add(id);
-
-        for (let depId of data[i].dependencies) {
-          checkCircularDependencies(depId, new Set(visited), id);
-        }
+        dataFound = true;
+        break;
       }
-      dataFound = true;
-      break;
+    }
+
+    if (!dataFound) {
+      console.log("Data with this id does not exist.");
     }
   }
 
-  if (!dataFound) {
-    console.log("Data with this id does not exist.");
+  checkCircularDependencies(id);
+
+  if (!circularDependencyFound) {
+    console.log("No circular dependency exists.");
   }
+
+  fetchData(id);
 }
 
-checkCircularDependencies(4);
-
-if (!circularDependencyFound) {
-  console.log("No circular dependency exists.");
-}
-
-fetchData(4);
+checkDependenciesAndStatus(4);
