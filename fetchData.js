@@ -2,50 +2,58 @@ let data = [
   {
     id: 1,
     name: "de",
-    status: 1,
+    status: 0,
   },
   {
     id: 2,
     name: "fv",
-    dependecies: [3],
+    dependencies: [1],
     status: 1,
   },
   {
     id: 3,
     name: "werf",
-    dependecies: [2, 1],
+    dependencies: [2],
     status: 1,
   },
   {
     id: 4,
     name: "werf",
-    dependecies: [3, 1],
-    status: 0,
+    dependencies: [3],
+    status: 1,
   },
 ];
 
-function fetchData(id) {
+let dataName = "";
+let depStatus = false;
+
+function fetchData(id, visited = new Set()) {
   let dataFound = false;
+  let status = false;
   for (let i = 0; i < data.length; i++) {
     if (data[i].id === id) {
-      if (data[i].status === 1 && data[i].dependecies === undefined) {
+      if (data[i].status === 1 && data[i].dependencies === undefined) {
         console.log(data[i].name);
-      } else if (data[i].status === 1 && data[i].dependecies !== undefined) {
-        let status = false;
+      } else if (data[i].status === 0 && data[i].dependencies === undefined) {
+        console.log("Data's Status is 0");
+      } else if (data[i].status === 1 && data[i].dependencies !== undefined) {
         for (let j = 0; j < data.length; j++) {
-          if (data[i].dependecies.includes(data[j].id)) {
-            if (data[j].status === 1) {
-              status = true;
-            } else {
-              status = false;
+          if (visited.has(data[j].id) === false) {
+            if (data[i].dependencies.includes(data[j].id)) {
+              status = data[j].status === 1;
+
+              if (!status) break;
+
+              fetchData(data[j].id);
+              visited.add(data[j].id);
             }
           }
         }
 
-        if (status === true) {
+        if (status) {
           console.log(data[i].name);
         } else {
-          console.log(data[i].name, "'s dependecies have status 0");
+          console.log(`${data[i].name}'s dependencies have status 0`);
         }
       }
       dataFound = true;
@@ -53,40 +61,45 @@ function fetchData(id) {
     }
   }
 
-  if (dataFound === false) {
-    console.log("Data with this id not exists.");
-  }
-}
-
-function checkCirculardependecies(id, visited = new Set()) {
-  let dataFound = false;
-
-  for (let i = 0; i < data.length; i++) {
-    if (data[i].id === id) {
-      if (data[i].dependecies !== undefined) {
-        if (visited.has(id)) {
-          console.log(`Circular dependencies detected at: ${id}`);
-          return;
-        } else {
-          console.log(`Does Not found any Circular dependencies.`);
-        }
-
-        visited.add(id);
-
-        for (let j = 0; j < data[i].dependecies.length; j++) {
-          let depId = data[i].dependecies[j];
-          checkCirculardependecies(depId, visited);
-        }
-      }
-      dataFound = true;
-      break;
-    }
-  }
-
-  if (dataFound === false) {
+  if (!dataFound) {
     console.log("Data with this id does not exist.");
   }
 }
 
-fetchData(3);
-checkCirculardependecies(4);
+let circularDependencyFound = false;
+
+function checkCircularDependencies(id, visited = new Set(), id2 = null) {
+  let dataFound = false;
+
+  for (let i = 0; i < data.length; i++) {
+    if (data[i].id === id) {
+      if (data[i].dependencies) {
+        if (visited.has(id)) {
+          console.log(`Circular dependency found between (${id2}, ${id})`);
+          circularDependencyFound = true;
+          return;
+        }
+
+        visited.add(id);
+
+        for (let depId of data[i].dependencies) {
+          checkCircularDependencies(depId, new Set(visited), id);
+        }
+      }
+      dataFound = true;
+      break;
+    }
+  }
+
+  if (!dataFound) {
+    console.log("Data with this id does not exist.");
+  }
+}
+
+checkCircularDependencies(4);
+
+if (!circularDependencyFound) {
+  console.log("No circular dependency exists.");
+}
+
+fetchData(4);
